@@ -107,6 +107,8 @@ func (r *ValuesFileResource) Create(ctx context.Context, req resource.CreateRequ
 	// For the purposes of this example code, hardcoding a response value to
 	// save into the Terraform state.
 	data.Id = types.StringValue("example-id")
+	data.FilePath = types.StringValue("/path/to/values.yaml")
+	data.Values = types.StringValue("key1: value1\nkey2: value2")
 
 	// Write logs using the tflog package
 	// Documentation: https://terraform.io/plugin/log
