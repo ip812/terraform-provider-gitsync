@@ -7,9 +7,9 @@ import (
 	"context"
 	"flag"
 	"log"
+	"terraform-provider-git-output/internal/provider"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
-	"github.com/hashicorp/terraform-provider-git-output/internal/provider"
 )
 
 var (
