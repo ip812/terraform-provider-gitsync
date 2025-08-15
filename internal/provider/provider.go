@@ -17,8 +17,6 @@ import (
 )
 
 var _ provider.Provider = &GitOutputProvider{}
-var _ provider.ProviderWithFunctions = &GitOutputProvider{}
-var _ provider.ProviderWithEphemeralResources = &GitOutputProvider{}
 
 type GitOutputProvider struct {
 	// version is set to the provider version on release, "dev" when the
@@ -34,7 +32,7 @@ type GitOutputProviderModel struct {
 }
 
 func (p *GitOutputProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
-	resp.TypeName = "git_output"
+	resp.TypeName = "ip812_git_output"
 	resp.Version = p.version
 }
 
@@ -43,11 +41,11 @@ func (p *GitOutputProvider) Schema(ctx context.Context, req provider.SchemaReque
 		Attributes: map[string]schema.Attribute{
 			"token": schema.StringAttribute{
 				MarkdownDescription: "The token used to connect to GitHub, GitLab, Bitbucket, or other Git provider.",
-				Optional:            false,
+				Required:            true,
 			},
 			"owner": schema.StringAttribute{
 				MarkdownDescription: "The owner name to manage.",
-				Optional:            false,
+				Required:            true,
 			},
 		},
 	}
@@ -67,13 +65,12 @@ func (p *GitOutputProvider) Configure(ctx context.Context, req provider.Configur
 
 	// Example client configuration for data sources and resources
 	client := http.DefaultClient
-	resp.DataSourceData = client
 	resp.ResourceData = client
 }
 
 func (p *GitOutputProvider) Resources(ctx context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		NewExampleResource,
+		NewValuesFileResource,
 	}
 }
 

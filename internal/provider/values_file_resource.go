@@ -49,11 +49,11 @@ func (r *ValuesFileResource) Schema(ctx context.Context, req resource.SchemaRequ
 		Attributes: map[string]schema.Attribute{
 			"file_path": schema.StringAttribute{
 				MarkdownDescription: "The path to the values file.",
-				Optional:            false,
+				Required:            true,
 			},
 			"values": schema.StringAttribute{
 				MarkdownDescription: "The values to be written to the file.",
-				Optional:            true,
+				Required:            true,
 			},
 			"id": schema.StringAttribute{
 				Computed:            true,
