@@ -32,7 +32,7 @@ type GitOutputProviderModel struct {
 }
 
 func (p *GitOutputProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
-	resp.TypeName = "ip812_git_output"
+	resp.TypeName = "gitoutput"
 	resp.Version = p.version
 }
 

@@ -7,7 +7,7 @@ import (
 	"context"
 	"flag"
 	"log"
-	"terraform-provider-ip812-git-output/internal/provider"
+	"terraform-provider-gitoutput/internal/provider"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 )
@@ -31,7 +31,7 @@ func main() {
 		// TODO: Update this string with the published name of your provider.
 		// Also update the tfplugindocs generate command to either remove the
 		// -provider-name flag or set its value to the updated provider name.
-		Address: "hashicorp.com/iypetrov/ip812-git-output",
+		Address: "hashicorp.com/iypetrov/gitoutput",
 		Debug:   debug,
 	}
 
