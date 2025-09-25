@@ -5,7 +5,6 @@ import (
 	"terraform-provider-gitsync/internal/git"
 
 	"github.com/google/go-github/v75/github"
-	gg "github.com/google/go-github/v75/github"
 	"golang.org/x/oauth2"
 )
 
@@ -16,7 +15,7 @@ var (
 type Client struct {
 	Owner      string
 	Repository string
-	*gg.Client
+	*github.Client
 }
 
 func New(ctx context.Context, owner, repo, token string) (*Client, error) {
@@ -24,11 +23,10 @@ func New(ctx context.Context, owner, repo, token string) (*Client, error) {
 		&oauth2.Token{AccessToken: token},
 	)
 	tc := oauth2.NewClient(ctx, ts)
-	client := gg.NewClient(tc)
 	return &Client{
 		Owner:      owner,
 		Repository: repo,
-		Client:     client,
+		Client:     github.NewClient(tc),
 	}, nil
 }
 

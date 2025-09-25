@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"path"
 	"strings"
 	"terraform-provider-gitsync/internal/git"
 	"terraform-provider-gitsync/internal/git/github"
@@ -22,7 +23,7 @@ func NewFactory() *Factory {
 }
 
 func (f *Factory) CreateClient(ctx context.Context, url, token string) (git.Client, error) {
-	owner, repo, err := parseURL(url)
+	_, owner, repo, err := parseURL(url)
 	if err != nil {
 		return nil, err
 	}
@@ -35,24 +36,25 @@ func (f *Factory) CreateClient(ctx context.Context, url, token string) (git.Clie
 	return client, nil
 }
 
-func parseURL(gitURL string) (owner, repo string, err error) {
+func parseURL(gitURL string) (host, owner, repo string, err error) {
 	u, err := url.ParseRequestURI(gitURL)
 	if err != nil {
-		return "", "", ErrInvalidGitURL
+		return "", "", "", ErrInvalidGitURL
 	}
 
 	if u.Scheme != "https" && u.Scheme != "http" {
-		return "", "", ErrUnsupportedScheme
+		return "", "", "", ErrUnsupportedScheme
 	}
 
 	parts := strings.Split(strings.Trim(u.Path, "/"), "/")
 	if len(parts) < 2 {
-		return "", "", ErrInvalidPath
+		return "", "", "", ErrInvalidPath
 	}
 
+	host = u.Host
 	owner = parts[0]
-	repo = parts[1]
+	repo = path.Join(parts[1:]...)
 	repo = strings.TrimSuffix(repo, ".git")
 
-	return owner, repo, nil
+	return host, owner, repo, nil
 }
