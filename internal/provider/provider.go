@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"terraform-provider-gitsync/internal/git"
 
+	"terraform-provider-gitsync/internal/git/factory"
 	gsresource "terraform-provider-gitsync/internal/resource"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -86,7 +86,8 @@ func (p *gitSyncProvider) Configure(ctx context.Context, req provider.ConfigureR
 		resp.Diagnostics.AddError(getMissingAttributeError("token"))
 	}
 
-	client, err := git.NewClient(ctx, url, token)
+	f := factory.NewFactory()
+	client, err := f.CreateClient(ctx, url, token)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Create GitSync API Client",
@@ -94,6 +95,7 @@ func (p *gitSyncProvider) Configure(ctx context.Context, req provider.ConfigureR
 		)
 		return
 	}
+
 	resp.ResourceData = client
 }
 

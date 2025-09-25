@@ -9,8 +9,6 @@ import (
 
 	"terraform-provider-gitsync/internal/git"
 
-	"github.com/google/go-github/v75/github"
-
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -92,38 +90,6 @@ func (r *ValuesYamlResource) Create(ctx context.Context, req resource.CreateRequ
 		return
 	}
 
-	options := &github.RepositoryContentFileOptions{
-		Message: github.Ptr("Update values.yaml from Terraform"),
-		Content: []byte(data.Content.ValueString()),
-		Branch:  github.Ptr(data.Branch.ValueString()),
-	}
-	respContent, _, err := r.client.GitHubClient.Repositories.CreateFile(
-		ctx,
-		r.client.GitHubOwner,
-		r.client.GitHubRepository,
-		data.Path.ValueString(),
-		options,
-	)
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Failed to create file in GitHub",
-			fmt.Sprintf(
-				"An error occurred while updating %q in branch %q: %v",
-				data.Path.ValueString(),
-				data.Branch.ValueString(),
-				err,
-			),
-		)
-		return
-	}
-
-	data.ID = types.StringValue(fmt.Sprintf(
-		"https://github.com/%s/%s/blob/%s/%s",
-		r.client.GitHubOwner,
-		r.client.GitHubRepository,
-		respContent.Commit.GetSHA(),
-		data.Path.ValueString(),
-	))
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
