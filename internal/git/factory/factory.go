@@ -8,6 +8,7 @@ import (
 	"strings"
 	"terraform-provider-gitsync/internal/git"
 	"terraform-provider-gitsync/internal/git/github"
+	"terraform-provider-gitsync/internal/git/gitlab"
 )
 
 var (
@@ -22,13 +23,24 @@ func NewFactory() *Factory {
 	return &Factory{}
 }
 
+// Use GitHub client only for github.com; all other hosts fall back to GitLab client.
+// This covers both gitlab.com and self-hosted GitLab instances with custom domains.
 func (f *Factory) CreateClient(ctx context.Context, url, token string) (git.Client, error) {
-	_, owner, repo, err := parseURL(url)
+	host, owner, repo, err := parseURL(url)
 	if err != nil {
 		return nil, err
 	}
 
-	client, err := github.New(ctx, owner, repo, token)
+	if host == "github.com" {
+		client, err := github.NewClientFunc(ctx, owner, repo, token)
+		if err != nil {
+			return nil, err
+		}
+
+		return client, nil
+	}
+
+	client, err := gitlab.NewClientFunc(ctx, owner, repo, token)
 	if err != nil {
 		return nil, err
 	}

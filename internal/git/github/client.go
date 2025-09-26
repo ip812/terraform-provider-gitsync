@@ -18,7 +18,9 @@ type Client struct {
 	*github.Client
 }
 
-func New(ctx context.Context, owner, repo, token string) (*Client, error) {
+var NewClientFunc = newClient
+
+func newClient(ctx context.Context, owner, repo, token string) (*Client, error) {
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
 	)
