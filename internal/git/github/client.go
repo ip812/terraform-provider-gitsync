@@ -13,8 +13,8 @@ var (
 )
 
 type Client struct {
-	Owner      string
-	Repository string
+	owner      string
+	repository string
 	*github.Client
 }
 
@@ -26,29 +26,37 @@ func newClient(ctx context.Context, owner, repo, token string) (*Client, error) 
 	)
 	tc := oauth2.NewClient(ctx, ts)
 	return &Client{
-		Owner:      owner,
-		Repository: repo,
+		owner:      owner,
+		repository: repo,
 		Client:     github.NewClient(tc),
 	}, nil
 }
 
-func (c *Client) Create(ctx context.Context, data git.ValuesYamlModel) error {
+func (c *Client) Create(ctx context.Context, data git.ValuesYamlModel) (string, error) {
 	options := &github.RepositoryContentFileOptions{
 		Message: github.Ptr("Update values.yaml from Terraform"),
 		Content: []byte(data.Content),
 		Branch:  github.Ptr(data.Branch),
 	}
 
-	_, _, err := c.Repositories.CreateFile(
+	cnt, _, err := c.Repositories.CreateFile(
 		ctx,
-		c.Owner,
-		c.Repository,
+		c.owner,
+		c.repository,
 		data.Path,
 		options,
 	)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	return *cnt.Commit.SHA, nil
+}
+
+func (c *Client) Owner() string {
+	return c.owner
+}
+
+func (c *Client) Repository() string {
+	return c.repository
 }

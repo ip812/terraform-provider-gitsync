@@ -28,7 +28,7 @@ func NewValueYamlResource() resource.Resource {
 }
 
 type ValuesYamlResource struct {
-	client *git.Client
+	client git.Client
 }
 
 type ValuesYamlResourceModel struct {
@@ -71,7 +71,7 @@ func (r *ValuesYamlResource) Configure(ctx context.Context, req resource.Configu
 	if req.ProviderData == nil {
 		return
 	}
-	c, ok := req.ProviderData.(*git.Client)
+	c, ok := req.ProviderData.(git.Client)
 	if !ok {
 		resp.Diagnostics.AddError(
 			"Unexpected Provider Data",
@@ -89,6 +89,32 @@ func (r *ValuesYamlResource) Create(ctx context.Context, req resource.CreateRequ
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	sha, err := r.client.Create(ctx, git.ValuesYamlModel{
+		Path:    data.Path.ValueString(),
+		Branch:  data.Branch.ValueString(),
+		Content: data.Content.ValueString(),
+	})
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Failed to create file in GitHub",
+			fmt.Sprintf(
+				"An error occurred while updating %q in branch %q: %v",
+				data.Path.ValueString(),
+				data.Branch.ValueString(),
+				err,
+			),
+		)
+		return
+	}
+
+	data.ID = types.StringValue(fmt.Sprintf(
+		"https://github.com/%s/%s/blob/%s/%s",
+		r.client.Owner(),
+		r.client.Repository(),
+		sha,
+		data.Path.ValueString(),
+	))
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }

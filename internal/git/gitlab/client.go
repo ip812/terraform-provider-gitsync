@@ -12,8 +12,8 @@ var (
 )
 
 type Client struct {
-	Owner      string
-	Repository string
+	owner      string
+	repository string
 	*gitlab.Client
 }
 
@@ -26,12 +26,20 @@ func newClient(ctx context.Context, owner, repo, token string) (*Client, error) 
 	}
 
 	return &Client{
-		Owner:      owner,
-		Repository: repo,
+		owner:      owner,
+		repository: repo,
 		Client:     client,
 	}, nil
 }
 
-func (c *Client) Create(ctx context.Context, data git.ValuesYamlModel) error {
-	return nil
+func (c *Client) Create(ctx context.Context, data git.ValuesYamlModel) (string, error) {
+	return "", nil
+}
+
+func (c *Client) Owner() string {
+	return c.owner
+}
+
+func (c *Client) Repository() string {
+	return c.repository
 }
