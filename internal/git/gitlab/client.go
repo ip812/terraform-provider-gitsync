@@ -2,6 +2,8 @@ package gitlab
 
 import (
 	"context"
+	"fmt"
+	"strings"
 	"terraform-provider-gitsync/internal/git"
 
 	gitlab "gitlab.com/gitlab-org/api/client-go"
@@ -32,8 +34,22 @@ func newClient(ctx context.Context, owner, repo, token string) (*Client, error) 
 	}, nil
 }
 
+func (c *Client) GetID(branch, path string) string {
+	return fmt.Sprintf(
+		"gitlab-%s-%s-%s-%s",
+		c.owner,
+		c.repository,
+		strings.ReplaceAll(branch, "/", "-"),
+		strings.ReplaceAll(path, "/", "-"),
+	)
+}
+
 func (c *Client) Create(ctx context.Context, data git.ValuesYamlModel) error {
 	return nil
+}
+
+func (c *Client) GetContent(ctx context.Context, id, path string) (string, error) {
+	return "", nil
 }
 
 func (c *Client) Owner() string {

@@ -6,7 +6,6 @@ package resource
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"terraform-provider-gitsync/internal/git"
 
@@ -109,18 +108,25 @@ func (r *ValuesYamlResource) Create(ctx context.Context, req resource.CreateRequ
 		return
 	}
 
-	data.ID = types.StringValue(fmt.Sprintf(
-		"github-%s-%s-%s-%s",
-		r.client.Owner(),
-		r.client.Repository(),
-		strings.ReplaceAll(data.Branch.ValueString(), "/", "-"),
-		strings.ReplaceAll(data.Path.ValueString(), "/", "-"),
-	))
-
+	data.ID = types.StringValue(r.client.GetID(data.Branch.ValueString(), data.Path.ValueString()))
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
 func (r *ValuesYamlResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var data ValuesYamlResourceModel
+
+	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	cnt, err := r.client.GetContent(ctx, data.ID.ValueString(), data.Path.ValueString())
+	if err != nil {
+		return
+	}
+
+	data.Content = types.StringValue(cnt)
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
 func (r *ValuesYamlResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {

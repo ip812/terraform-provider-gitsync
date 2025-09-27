@@ -2,6 +2,8 @@ package github
 
 import (
 	"context"
+	"fmt"
+	"strings"
 	"terraform-provider-gitsync/internal/git"
 
 	"github.com/google/go-github/v75/github"
@@ -32,6 +34,16 @@ func newClient(ctx context.Context, owner, repo, token string) (*Client, error) 
 	}, nil
 }
 
+func (c *Client) GetID(branch, path string) string {
+	return fmt.Sprintf(
+		"github-%s-%s-%s-%s",
+		c.owner,
+		c.repository,
+		strings.ReplaceAll(branch, "/", "-"),
+		strings.ReplaceAll(path, "/", "-"),
+	)
+}
+
 func (c *Client) Create(ctx context.Context, data git.ValuesYamlModel) error {
 	options := &github.RepositoryContentFileOptions{
 		Message: github.Ptr("Update values.yaml from Terraform"),
@@ -51,6 +63,30 @@ func (c *Client) Create(ctx context.Context, data git.ValuesYamlModel) error {
 	}
 
 	return nil
+}
+
+func (c *Client) GetContent(ctx context.Context, id, path string) (string, error) {
+	cnt, _, _, err := c.Repositories.GetContents(
+		ctx,
+		c.owner,
+		c.repository,
+		path,
+		&github.RepositoryContentGetOptions{},
+	)
+	if err != nil {
+		return "", err
+	}
+
+	if cnt == nil {
+		return "", nil
+	}
+
+	decoded, err := cnt.GetContent()
+	if err != nil {
+		return "", err
+	}
+
+	return decoded, nil
 }
 
 func (c *Client) Owner() string {
