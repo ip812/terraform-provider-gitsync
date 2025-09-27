@@ -110,10 +110,11 @@ func (r *ValuesYamlResource) Create(ctx context.Context, req resource.CreateRequ
 	}
 
 	data.ID = types.StringValue(fmt.Sprintf(
-		"github-%s-%s-%s",
+		"github-%s-%s-%s-%s",
 		r.client.Owner(),
 		r.client.Repository(),
 		strings.ReplaceAll(data.Branch.ValueString(), "/", "-"),
+		strings.ReplaceAll(data.Path.ValueString(), "/", "-"),
 	))
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
