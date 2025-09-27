@@ -32,10 +32,11 @@ type ValuesYamlResource struct {
 }
 
 type ValuesYamlResourceModel struct {
-	Path    types.String `tfsdk:"path"`
-	Branch  types.String `tfsdk:"branch"`
-	Content types.String `tfsdk:"content"`
-	ID      types.String `tfsdk:"id"`
+	ID          types.String `tfsdk:"id"`
+	Path        types.String `tfsdk:"path"`
+	Branch      types.String `tfsdk:"branch"`
+	Content     types.String `tfsdk:"content"`
+	LastUpdated types.String `tfsdk:"last_updated"`
 }
 
 func (r *ValuesYamlResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -46,6 +47,11 @@ func (r *ValuesYamlResource) Schema(ctx context.Context, req resource.SchemaRequ
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "Create or update a file in the configured Git repository.",
 		Attributes: map[string]schema.Attribute{
+			"id": schema.StringAttribute{
+				Computed:            true,
+				PlanModifiers:       []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+				MarkdownDescription: "Unique ID.",
+			},
 			"path": schema.StringAttribute{
 				MarkdownDescription: "Relative path of the file to create/update in the repo.",
 				Required:            true,
@@ -58,10 +64,8 @@ func (r *ValuesYamlResource) Schema(ctx context.Context, req resource.SchemaRequ
 				MarkdownDescription: "File content to write.",
 				Required:            true,
 			},
-			"id": schema.StringAttribute{
-				Computed:            true,
-				PlanModifiers:       []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
-				MarkdownDescription: "Unique ID (path + commit hash).",
+			"last_updated": schema.StringAttribute{
+				Computed: true,
 			},
 		},
 	}
@@ -120,7 +124,7 @@ func (r *ValuesYamlResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	}
 
-	cnt, err := r.client.GetContent(ctx, data.ID.ValueString(), data.Path.ValueString())
+	cnt, err := r.client.GetContent(ctx, data.Path.ValueString(), data.Branch.ValueString())
 	if err != nil {
 		return
 	}
@@ -130,6 +134,13 @@ func (r *ValuesYamlResource) Read(ctx context.Context, req resource.ReadRequest,
 }
 
 func (r *ValuesYamlResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var data ValuesYamlResourceModel
+
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 }
 
 func (r *ValuesYamlResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {

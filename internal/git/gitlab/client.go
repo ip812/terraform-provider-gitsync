@@ -48,7 +48,7 @@ func (c *Client) Create(ctx context.Context, data git.ValuesYamlModel) error {
 	return nil
 }
 
-func (c *Client) GetContent(ctx context.Context, id, path string) (string, error) {
+func (c *Client) GetContent(ctx context.Context, path, branch string) (string, error) {
 	return "", nil
 }
 

@@ -65,20 +65,31 @@ func (c *Client) Create(ctx context.Context, data git.ValuesYamlModel) error {
 	return nil
 }
 
-func (c *Client) GetContent(ctx context.Context, id, path string) (string, error) {
+func (c *Client) get(ctx context.Context, path, branch string) (*github.RepositoryContent, error) {
 	cnt, _, _, err := c.Repositories.GetContents(
 		ctx,
 		c.owner,
 		c.repository,
 		path,
-		&github.RepositoryContentGetOptions{},
+		&github.RepositoryContentGetOptions{
+			Ref: "heads/" + branch,
+		},
 	)
 	if err != nil {
-		return "", err
+		return &github.RepositoryContent{}, err
 	}
 
 	if cnt == nil {
-		return "", nil
+		return &github.RepositoryContent{}, err
+	}
+
+	return cnt, nil
+}
+
+func (c *Client) GetContent(ctx context.Context, path, branch string) (string, error) {
+	cnt, err := c.get(ctx, path, branch)
+	if err != nil {
+		return "", err
 	}
 
 	decoded, err := cnt.GetContent()
