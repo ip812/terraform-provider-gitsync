@@ -32,14 +32,14 @@ func newClient(ctx context.Context, owner, repo, token string) (*Client, error) 
 	}, nil
 }
 
-func (c *Client) Create(ctx context.Context, data git.ValuesYamlModel) (string, error) {
+func (c *Client) Create(ctx context.Context, data git.ValuesYamlModel) error {
 	options := &github.RepositoryContentFileOptions{
 		Message: github.Ptr("Update values.yaml from Terraform"),
 		Content: []byte(data.Content),
 		Branch:  github.Ptr(data.Branch),
 	}
 
-	cnt, _, err := c.Repositories.CreateFile(
+	_, _, err := c.Repositories.CreateFile(
 		ctx,
 		c.owner,
 		c.repository,
@@ -47,10 +47,10 @@ func (c *Client) Create(ctx context.Context, data git.ValuesYamlModel) (string, 
 		options,
 	)
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	return *cnt.Commit.SHA, nil
+	return nil
 }
 
 func (c *Client) Owner() string {

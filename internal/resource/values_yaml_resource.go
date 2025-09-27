@@ -6,6 +6,7 @@ package resource
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"terraform-provider-gitsync/internal/git"
 
@@ -90,7 +91,7 @@ func (r *ValuesYamlResource) Create(ctx context.Context, req resource.CreateRequ
 		return
 	}
 
-	sha, err := r.client.Create(ctx, git.ValuesYamlModel{
+	err := r.client.Create(ctx, git.ValuesYamlModel{
 		Path:    data.Path.ValueString(),
 		Branch:  data.Branch.ValueString(),
 		Content: data.Content.ValueString(),
@@ -109,11 +110,10 @@ func (r *ValuesYamlResource) Create(ctx context.Context, req resource.CreateRequ
 	}
 
 	data.ID = types.StringValue(fmt.Sprintf(
-		"https://github.com/%s/%s/blob/%s/%s",
+		"github-%s-%s-%s",
 		r.client.Owner(),
 		r.client.Repository(),
-		sha,
-		data.Path.ValueString(),
+		strings.ReplaceAll(data.Branch.ValueString(), "/", "-"),
 	))
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)

@@ -11,7 +11,7 @@ type ValuesYamlModel struct {
 }
 
 type Client interface {
-	Create(ctx context.Context, data ValuesYamlModel) (sha string, err error)
+	Create(ctx context.Context, data ValuesYamlModel) error
 	Owner() string
 	Repository() string
 }
