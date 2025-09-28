@@ -24,8 +24,11 @@ type Client struct {
 
 var NewClientFunc = newClient
 
-func newClient(ctx context.Context, owner, repo, token string) (*Client, error) {
-	client, err := gitlab.NewClient(token)
+func newClient(ctx context.Context, host, owner, repo, token string) (*Client, error) {
+	client, err := gitlab.NewClient(
+		token,
+		gitlab.WithBaseURL(fmt.Sprintf("https://%s/api/v4", host)),
+	)
 	if err != nil {
 		return nil, err
 	}

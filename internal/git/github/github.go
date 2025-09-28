@@ -24,7 +24,7 @@ type Client struct {
 
 var NewClientFunc = newClient
 
-func newClient(ctx context.Context, owner, repo, token string) (*Client, error) {
+func newClient(ctx context.Context, host, owner, repo, token string) (*Client, error) {
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
 	)

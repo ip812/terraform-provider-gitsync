@@ -34,7 +34,7 @@ func (f *Factory) CreateClient(ctx context.Context, url, token string) (git.Clie
 	}
 
 	if host == "github.com" {
-		client, err := github.NewClientFunc(ctx, owner, repo, token)
+		client, err := github.NewClientFunc(ctx, host, owner, repo, token)
 		if err != nil {
 			return nil, err
 		}
@@ -42,7 +42,7 @@ func (f *Factory) CreateClient(ctx context.Context, url, token string) (git.Clie
 		return client, nil
 	}
 
-	client, err := gitlab.NewClientFunc(ctx, owner, repo, token)
+	client, err := gitlab.NewClientFunc(ctx, host, owner, repo, token)
 	if err != nil {
 		return nil, err
 	}
