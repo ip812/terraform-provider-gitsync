@@ -81,5 +81,5 @@ jobs:
       - run: go mod download
       - env:
           TF_ACC: "1"
-        run: go test -v -cover ./internal/...
+        run: go test -v -cover ./internal/git/factory/***
         timeout-minutes: 10

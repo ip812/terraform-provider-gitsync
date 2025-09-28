@@ -190,6 +190,3 @@ func (r *ValuesYamlResource) Delete(ctx context.Context, req resource.DeleteRequ
 		return
 	}
 }
-
-func (r *ValuesYamlResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-}
