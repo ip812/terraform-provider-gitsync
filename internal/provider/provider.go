@@ -53,11 +53,13 @@ func (p *gitSyncProvider) Schema(ctx context.Context, req provider.SchemaRequest
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"url": schema.StringAttribute{
-				Optional: true,
+				Optional:            true,
+				MarkdownDescription: "The URL of your Git repository. Currently only GitHub and GitLab are supported. If the url is from github.com, the GitHub API will be used; otherwise, the GitLab API will be used. Notice that self-hosted GitLab instances with custom domains are also supported and that is the reason why there is no hard rule host to containt gitlab.com in order to use the GitLab API.",
 			},
 			"token": schema.StringAttribute{
-				Optional:  true,
-				Sensitive: true,
+				Optional:            true,
+				Sensitive:           true,
+				MarkdownDescription: "The personal access token used to authenticate with the Git provider API. The token must have sufficient permissions to create, update, and delete files in the target repository.",
 			},
 		},
 	}

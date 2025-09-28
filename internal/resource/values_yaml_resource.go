@@ -44,7 +44,7 @@ func (r *ValuesYamlResource) Metadata(ctx context.Context, req resource.Metadata
 
 func (r *ValuesYamlResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Create or update a file in the configured Git repository.",
+		MarkdownDescription: "Manages a yaml file in a Git repository.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed:            true,
@@ -52,7 +52,7 @@ func (r *ValuesYamlResource) Schema(ctx context.Context, req resource.SchemaRequ
 				MarkdownDescription: "Unique ID.",
 			},
 			"path": schema.StringAttribute{
-				MarkdownDescription: "Relative path of the file to create/update in the repo.",
+				MarkdownDescription: "Relative path of the file in the repo.",
 				Required:            true,
 			},
 			"branch": schema.StringAttribute{

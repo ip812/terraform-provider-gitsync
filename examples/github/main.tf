@@ -1,3 +1,5 @@
+# Copyright (c) HashiCorp, Inc.
+
 terraform {
   required_providers {
     gitsync = {
@@ -7,15 +9,15 @@ terraform {
 }
 
 provider "gitsync" {
-  url = "https://github.com/iypetrov/terraform-provider-gitsync-e2e-test.git"
-  token = "some-token"
+  url   = "https://github.com/iypetrov/terraform-provider-gitsync-e2e-test.git"
+  token = "your-token"
 }
 
 resource "gitsync_values_yaml" "example" {
-  branch = "main"
+  branch  = "main"
   path    = "values/values.yaml"
   content = <<EOT
-foo: bar
+name: bar
 replicas: 2
 EOT
 }
