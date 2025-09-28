@@ -90,6 +90,10 @@ func (r *ValuesYamlResource) Create(ctx context.Context, req resource.CreateRequ
 		return
 	}
 
+	if data.Branch.IsNull() || data.Branch.ValueString() == "" {
+		data.Branch = types.StringValue(defaultBranch)
+	}
+
 	err := r.client.Create(ctx, git.ValuesYamlModel{
 		Path:    data.Path.ValueString(),
 		Branch:  data.Branch.ValueString(),
