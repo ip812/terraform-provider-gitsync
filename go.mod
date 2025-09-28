@@ -8,6 +8,7 @@ require (
 	github.com/google/go-github/v75 v75.0.0
 	github.com/hashicorp/terraform-plugin-framework v1.15.1
 	github.com/stretchr/testify v1.11.1
+	gitlab.com/gitlab-org/api/client-go v0.148.0
 	golang.org/x/oauth2 v0.30.0
 )
 
@@ -35,7 +36,6 @@ require (
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	github.com/vmihailenco/msgpack/v5 v5.4.1 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
-	gitlab.com/gitlab-org/api/client-go v0.148.0 // indirect
 	golang.org/x/exp v0.0.0-20240506185415-9bf2ced13842 // indirect
 	golang.org/x/net v0.43.0 // indirect
 	golang.org/x/sys v0.35.0 // indirect
