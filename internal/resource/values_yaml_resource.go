@@ -32,11 +32,10 @@ type ValuesYamlResource struct {
 }
 
 type ValuesYamlResourceModel struct {
-	ID          types.String `tfsdk:"id"`
-	Path        types.String `tfsdk:"path"`
-	Branch      types.String `tfsdk:"branch"`
-	Content     types.String `tfsdk:"content"`
-	LastUpdated types.String `tfsdk:"last_updated"`
+	ID      types.String `tfsdk:"id"`
+	Path    types.String `tfsdk:"path"`
+	Branch  types.String `tfsdk:"branch"`
+	Content types.String `tfsdk:"content"`
 }
 
 func (r *ValuesYamlResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -63,9 +62,6 @@ func (r *ValuesYamlResource) Schema(ctx context.Context, req resource.SchemaRequ
 			"content": schema.StringAttribute{
 				MarkdownDescription: "File content to write.",
 				Required:            true,
-			},
-			"last_updated": schema.StringAttribute{
-				Computed: true,
 			},
 		},
 	}
@@ -101,7 +97,7 @@ func (r *ValuesYamlResource) Create(ctx context.Context, req resource.CreateRequ
 	})
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Failed to create file in GitHub",
+			"Failed to create file",
 			fmt.Sprintf(
 				"An error occurred while updating %q in branch %q: %v",
 				data.Path.ValueString(),
@@ -126,9 +122,19 @@ func (r *ValuesYamlResource) Read(ctx context.Context, req resource.ReadRequest,
 
 	cnt, err := r.client.GetContent(ctx, data.Path.ValueString(), data.Branch.ValueString())
 	if err != nil {
+		resp.Diagnostics.AddError(
+			"Failed to read file",
+			fmt.Sprintf(
+				"An error occurred while reading %q in branch %q: %v",
+				data.Path.ValueString(),
+				data.Branch.ValueString(),
+				err,
+			),
+		)
 		return
 	}
 
+	data.ID = types.StringValue(r.client.GetID(data.Branch.ValueString(), data.Path.ValueString()))
 	data.Content = types.StringValue(cnt)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
@@ -141,9 +147,48 @@ func (r *ValuesYamlResource) Update(ctx context.Context, req resource.UpdateRequ
 		return
 	}
 
+	err := r.client.Update(ctx, git.ValuesYamlModel{
+		Path:    data.Path.ValueString(),
+		Branch:  data.Branch.ValueString(),
+		Content: data.Content.ValueString(),
+	})
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Failed to update file",
+			fmt.Sprintf(
+				"An error occurred while updating %q in branch %q: %v",
+				data.Path.ValueString(),
+				data.Branch.ValueString(),
+				err,
+			),
+		)
+		return
+	}
+
+	resp.Diagnostics.Append(resp.State.Set(ctx, data)...)
 }
 
 func (r *ValuesYamlResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var data ValuesYamlResourceModel
+
+	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	err := r.client.Delete(ctx, data.Path.ValueString(), data.Branch.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Failed to delete file",
+			fmt.Sprintf(
+				"An error occurred while deleting %q in branch %q: %v",
+				data.Path.ValueString(),
+				data.Branch.ValueString(),
+				err,
+			),
+		)
+		return
+	}
 }
 
 func (r *ValuesYamlResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {

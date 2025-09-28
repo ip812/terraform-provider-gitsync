@@ -39,14 +39,16 @@ func (c *Client) GetID(branch, path string) string {
 		"github-%s-%s-%s-%s",
 		c.owner,
 		c.repository,
-		strings.ReplaceAll(branch, "/", "-"),
-		strings.ReplaceAll(path, "/", "-"),
+		branch,
+		strings.ReplaceAll(strings.ReplaceAll(path, "/", "-"), ".", "-"),
 	)
 }
 
 func (c *Client) Create(ctx context.Context, data git.ValuesYamlModel) error {
 	options := &github.RepositoryContentFileOptions{
-		Message: github.Ptr("Update values.yaml from Terraform"),
+		Message: github.Ptr(
+			fmt.Sprintf("terraform: Create %q at branch %q", data.Path, data.Branch),
+		),
 		Content: []byte(data.Content),
 		Branch:  github.Ptr(data.Branch),
 	}
@@ -79,10 +81,6 @@ func (c *Client) get(ctx context.Context, path, branch string) (*github.Reposito
 		return &github.RepositoryContent{}, err
 	}
 
-	if cnt == nil {
-		return &github.RepositoryContent{}, err
-	}
-
 	return cnt, nil
 }
 
@@ -92,12 +90,81 @@ func (c *Client) GetContent(ctx context.Context, path, branch string) (string, e
 		return "", err
 	}
 
+	if cnt == nil {
+		return "", fmt.Errorf("file %q does not exist on branch %q", path, branch)
+	}
+
 	decoded, err := cnt.GetContent()
 	if err != nil {
 		return "", err
 	}
 
 	return decoded, nil
+}
+
+func (c *Client) Update(ctx context.Context, data git.ValuesYamlModel) error {
+	cnt, err := c.get(ctx, data.Path, data.Branch)
+	if err != nil {
+		return err
+	}
+
+	if cnt == nil {
+		return fmt.Errorf("file %q does not exist on branch %q", data.Path, data.Branch)
+	}
+
+	sha := cnt.GetSHA()
+	if sha == "" {
+		return fmt.Errorf("unable to determine SHA for %q on branch %q", data.Path, data.Branch)
+	}
+
+	opts := &github.RepositoryContentFileOptions{
+		Message: github.Ptr(
+			fmt.Sprintf("terraform: Update %q at branch %q", data.Path, data.Branch),
+		),
+		Content: []byte(data.Content),
+		Branch:  github.Ptr(data.Branch),
+		SHA:     github.Ptr(sha),
+	}
+
+	_, _, err = c.Repositories.UpdateFile(
+		ctx,
+		c.owner,
+		c.repository,
+		data.Path,
+		opts,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *Client) Delete(ctx context.Context, path, branch string) error {
+	cnt, err := c.get(ctx, path, branch)
+	if err != nil {
+		return err
+	}
+
+	if cnt == nil {
+		return fmt.Errorf("file %q does not exist on branch %q", path, branch)
+	}
+
+	sha := cnt.GetSHA()
+	if sha == "" {
+		return fmt.Errorf("unable to determine SHA for %q on branch %q", path, branch)
+	}
+
+	opts := &github.RepositoryContentFileOptions{
+		Message: github.Ptr(
+			fmt.Sprintf("terraform: Delete %q from branch %q", path, branch),
+		),
+		SHA:    github.Ptr(sha),
+		Branch: github.Ptr(branch),
+	}
+
+	_, _, err = c.Repositories.DeleteFile(ctx, c.owner, c.repository, path, opts)
+	return err
 }
 
 func (c *Client) Owner() string {

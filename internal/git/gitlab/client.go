@@ -39,8 +39,8 @@ func (c *Client) GetID(branch, path string) string {
 		"gitlab-%s-%s-%s-%s",
 		c.owner,
 		c.repository,
-		strings.ReplaceAll(branch, "/", "-"),
-		strings.ReplaceAll(path, "/", "-"),
+		branch,
+		strings.ReplaceAll(strings.ReplaceAll(path, "/", "-"), ".", "-"),
 	)
 }
 
@@ -50,6 +50,14 @@ func (c *Client) Create(ctx context.Context, data git.ValuesYamlModel) error {
 
 func (c *Client) GetContent(ctx context.Context, path, branch string) (string, error) {
 	return "", nil
+}
+
+func (c *Client) Update(ctx context.Context, data git.ValuesYamlModel) error {
+	return nil
+}
+
+func (c *Client) Delete(ctx context.Context, path, branch string) error {
+	return nil
 }
 
 func (c *Client) Owner() string {
