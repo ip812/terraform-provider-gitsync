@@ -130,10 +130,10 @@ func TestCreateClient(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			github.NewClientFunc = func(ctx context.Context, owner, repo, token string) (*github.Client, error) {
+			github.NewClientFunc = func(ctx context.Context, host, owner, repo, token string) (*github.Client, error) {
 				return githubMockClient, nil
 			}
-			gitlab.NewClientFunc = func(ctx context.Context, owner, repo, token string) (*gitlab.Client, error) {
+			gitlab.NewClientFunc = func(ctx context.Context, host, owner, repo, token string) (*gitlab.Client, error) {
 				return gitlabMockClient, nil
 			}
 
