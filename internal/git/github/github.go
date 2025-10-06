@@ -46,7 +46,7 @@ func (c *Client) GetID(branch, path string) string {
 	)
 }
 
-func (c *Client) Create(ctx context.Context, data git.ValuesYamlModel) error {
+func (c *Client) Create(ctx context.Context, data git.ValuesModel) error {
 	options := &github.RepositoryContentFileOptions{
 		Message: github.Ptr(
 			fmt.Sprintf("terraform: Create %q at branch %q", data.Path, data.Branch),
@@ -104,7 +104,7 @@ func (c *Client) GetContent(ctx context.Context, path, branch string) (string, e
 	return decoded, nil
 }
 
-func (c *Client) Update(ctx context.Context, data git.ValuesYamlModel) error {
+func (c *Client) Update(ctx context.Context, data git.ValuesModel) error {
 	cnt, err := c.get(ctx, data.Path, data.Branch)
 	if err != nil {
 		return err

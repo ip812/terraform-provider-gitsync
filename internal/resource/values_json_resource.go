@@ -16,31 +16,31 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-var _ resource.Resource = &ValuesYamlResource{}
-var _ resource.ResourceWithImportState = &ValuesYamlResource{}
+var _ resource.Resource = &ValuesJsonResource{}
+var _ resource.ResourceWithImportState = &ValuesJsonResource{}
 
-func NewValueYamlResource() resource.Resource {
-	return &ValuesYamlResource{}
+func NewValueJsonResource() resource.Resource {
+	return &ValuesJsonResource{}
 }
 
-type ValuesYamlResource struct {
+type ValuesJsonResource struct {
 	client git.Client
 }
 
-type ValuesYamlResourceModel struct {
+type ValuesJsonResourceModel struct {
 	ID      types.String `tfsdk:"id"`
 	Path    types.String `tfsdk:"path"`
 	Branch  types.String `tfsdk:"branch"`
 	Content types.String `tfsdk:"content"`
 }
 
-func (r *ValuesYamlResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_values_yaml"
+func (r *ValuesJsonResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_values_json"
 }
 
-func (r *ValuesYamlResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *ValuesJsonResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Manages a yaml file in a Git repository.",
+		MarkdownDescription: "Manages a json file in a Git repository.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed:            true,
@@ -63,7 +63,7 @@ func (r *ValuesYamlResource) Schema(ctx context.Context, req resource.SchemaRequ
 	}
 }
 
-func (r *ValuesYamlResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *ValuesJsonResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -78,8 +78,8 @@ func (r *ValuesYamlResource) Configure(ctx context.Context, req resource.Configu
 	r.client = c
 }
 
-func (r *ValuesYamlResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data ValuesYamlResourceModel
+func (r *ValuesJsonResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var data ValuesJsonResourceModel
 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
@@ -112,8 +112,8 @@ func (r *ValuesYamlResource) Create(ctx context.Context, req resource.CreateRequ
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *ValuesYamlResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var data ValuesYamlResourceModel
+func (r *ValuesJsonResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var data ValuesJsonResourceModel
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
@@ -139,8 +139,8 @@ func (r *ValuesYamlResource) Read(ctx context.Context, req resource.ReadRequest,
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-func (r *ValuesYamlResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var data ValuesYamlResourceModel
+func (r *ValuesJsonResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var data ValuesJsonResourceModel
 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
@@ -168,8 +168,8 @@ func (r *ValuesYamlResource) Update(ctx context.Context, req resource.UpdateRequ
 	resp.Diagnostics.Append(resp.State.Set(ctx, data)...)
 }
 
-func (r *ValuesYamlResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var data ValuesYamlResourceModel
+func (r *ValuesJsonResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var data ValuesJsonResourceModel
 
 	resp.Diagnostics.Append(req.State.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
@@ -191,5 +191,5 @@ func (r *ValuesYamlResource) Delete(ctx context.Context, req resource.DeleteRequ
 	}
 }
 
-func (r *ValuesYamlResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *ValuesJsonResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 }

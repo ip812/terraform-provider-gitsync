@@ -54,7 +54,7 @@ func (c *Client) projectPath() string {
 	return fmt.Sprintf("%s/%s", c.owner, c.repository)
 }
 
-func (c *Client) Create(ctx context.Context, data git.ValuesYamlModel) error {
+func (c *Client) Create(ctx context.Context, data git.ValuesModel) error {
 	msg := fmt.Sprintf("terraform: Create %q at branch %q", data.Path, data.Branch)
 	opts := &gitlab.CreateFileOptions{
 		Branch:        gitlab.Ptr(data.Branch),
@@ -95,7 +95,7 @@ func (c *Client) GetContent(ctx context.Context, path, branch string) (string, e
 	return string(decoded), nil
 }
 
-func (c *Client) Update(ctx context.Context, data git.ValuesYamlModel) error {
+func (c *Client) Update(ctx context.Context, data git.ValuesModel) error {
 	file, err := c.get(ctx, data.Path, data.Branch)
 	if err != nil {
 		return err
