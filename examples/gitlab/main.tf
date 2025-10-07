@@ -13,11 +13,32 @@ provider "gitsync" {
   token = "your-token"
 }
 
-resource "gitsync_values_yaml" "example" {
+resource "gitsync_values_yaml" "example_yaml" {
   branch  = "main"
   path    = "values/values.yaml"
   content = <<EOT
 name: bar
 replicas: 2
+EOT
+}
+
+resource "gitsync_values_json" "example_json" {
+  branch  = "main"
+  path    = "values/values.json"
+  content = <<EOT
+{
+  "name": "bar",
+  "replicas": 2
+}
+EOT
+}
+
+resource "gitsync_values_file" "example_file" {
+  branch  = "main"
+  path    = "values/values.md"
+  content = <<EOT
+# Title
+
+Name is bar and replicas are 2
 EOT
 }

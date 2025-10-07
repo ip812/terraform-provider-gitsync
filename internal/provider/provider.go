@@ -104,6 +104,8 @@ func (p *gitSyncProvider) Configure(ctx context.Context, req provider.ConfigureR
 func (p *gitSyncProvider) Resources(ctx context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		gsresource.NewValueYamlResource,
+		gsresource.NewValueJsonResource,
+		gsresource.NewValueFileResource,
 	}
 }
 

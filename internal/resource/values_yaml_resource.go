@@ -6,6 +6,7 @@ package resource
 import (
 	"context"
 	"fmt"
+	"path/filepath"
 
 	"terraform-provider-gitsync/internal/git"
 
@@ -90,6 +91,15 @@ func (r *ValuesYamlResource) Create(ctx context.Context, req resource.CreateRequ
 		data.Branch = types.StringValue(defaultBranch)
 	}
 
+	ext := filepath.Ext(data.Path.ValueString())
+	if ext != ".yaml" && ext != ".yml" {
+		resp.Diagnostics.AddError(
+			"Invalid file extension",
+			fmt.Sprintf("The file extension %q is not valid, must be .yaml or .yaml", ext),
+		)
+		return
+	}
+
 	err := r.client.Create(ctx, git.ValuesModel{
 		Path:    data.Path.ValueString(),
 		Branch:  data.Branch.ValueString(),
@@ -144,6 +154,15 @@ func (r *ValuesYamlResource) Update(ctx context.Context, req resource.UpdateRequ
 
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	ext := filepath.Ext(data.Path.ValueString())
+	if ext != ".yaml" && ext != ".yml" {
+		resp.Diagnostics.AddError(
+			"Invalid file extension",
+			fmt.Sprintf("The file extension %q is not valid, must be .yaml or .yaml", ext),
+		)
 		return
 	}
 
