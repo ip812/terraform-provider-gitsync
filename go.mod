@@ -5,6 +5,7 @@ go 1.24.0
 toolchain go1.24.3
 
 require (
+	github.com/cenkalti/backoff/v5 v5.0.3
 	github.com/google/go-github/v75 v75.0.0
 	github.com/hashicorp/terraform-plugin-framework v1.15.1
 	github.com/stretchr/testify v1.11.1

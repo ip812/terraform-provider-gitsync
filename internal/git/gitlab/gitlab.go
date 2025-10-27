@@ -6,9 +6,11 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"net/http"
 	"strings"
 	"terraform-provider-gitsync/internal/git"
 
+	"github.com/cenkalti/backoff/v5"
 	gitlab "gitlab.com/gitlab-org/api/client-go"
 )
 
@@ -54,16 +56,41 @@ func (c *Client) projectPath() string {
 	return fmt.Sprintf("%s/%s", c.owner, c.repository)
 }
 
-func (c *Client) Create(ctx context.Context, data git.ValuesModel) error {
-	msg := fmt.Sprintf("terraform: Create %q at branch %q", data.Path, data.Branch)
-	opts := &gitlab.CreateFileOptions{
-		Branch:        gitlab.Ptr(data.Branch),
-		Content:       gitlab.Ptr(data.Content),
-		CommitMessage: gitlab.Ptr(msg),
+func retryOnConflict(ctx context.Context, operation func() error) error {
+	retryableOperation := func() (struct{}, error) {
+		err := operation()
+		if err == nil {
+			return struct{}{}, nil
+		}
+
+		// Check if it's a conflict error (GitLab returns 400 or 409 for commit conflicts)
+		if glErr, ok := err.(*gitlab.ErrorResponse); ok {
+			statusCode := glErr.Response.StatusCode
+			if statusCode == http.StatusConflict || statusCode == http.StatusBadRequest {
+				return struct{}{}, err
+			}
+		}
+		
+		// Not a conflict error, don't retry
+		return struct{}{}, backoff.Permanent(err)
 	}
 
-	_, _, err := c.RepositoryFiles.CreateFile(c.projectPath(), data.Path, opts, gitlab.WithContext(ctx))
+	_, err := backoff.Retry(ctx, retryableOperation)
 	return err
+}
+
+func (c *Client) Create(ctx context.Context, data git.ValuesModel) error {
+	return retryOnConflict(ctx, func() error {
+		msg := fmt.Sprintf("terraform: Create %q at branch %q", data.Path, data.Branch)
+		opts := &gitlab.CreateFileOptions{
+			Branch:        gitlab.Ptr(data.Branch),
+			Content:       gitlab.Ptr(data.Content),
+			CommitMessage: gitlab.Ptr(msg),
+		}
+
+		_, _, err := c.RepositoryFiles.CreateFile(c.projectPath(), data.Path, opts, gitlab.WithContext(ctx))
+		return err
+	})
 }
 
 func (c *Client) get(ctx context.Context, path, branch string) (*gitlab.File, error) {
@@ -96,54 +123,58 @@ func (c *Client) GetContent(ctx context.Context, path, branch string) (string, e
 }
 
 func (c *Client) Update(ctx context.Context, data git.ValuesModel) error {
-	file, err := c.get(ctx, data.Path, data.Branch)
-	if err != nil {
+	return retryOnConflict(ctx, func() error {
+		file, err := c.get(ctx, data.Path, data.Branch)
+		if err != nil {
+			return err
+		}
+		if file == nil {
+			return fmt.Errorf("file %q does not exist on branch %q", data.Path, data.Branch)
+		}
+
+		msg := fmt.Sprintf("terraform: Update %q at branch %q", data.Path, data.Branch)
+		opts := &gitlab.UpdateFileOptions{
+			Branch:        gitlab.Ptr(data.Branch),
+			Content:       gitlab.Ptr(data.Content),
+			CommitMessage: gitlab.Ptr(msg),
+			LastCommitID:  gitlab.Ptr(file.LastCommitID),
+		}
+
+		_, _, err = c.RepositoryFiles.UpdateFile(
+			c.projectPath(),
+			data.Path,
+			opts,
+			gitlab.WithContext(ctx),
+		)
 		return err
-	}
-	if file == nil {
-		return fmt.Errorf("file %q does not exist on branch %q", data.Path, data.Branch)
-	}
-
-	msg := fmt.Sprintf("terraform: Update %q at branch %q", data.Path, data.Branch)
-	opts := &gitlab.UpdateFileOptions{
-		Branch:        gitlab.Ptr(data.Branch),
-		Content:       gitlab.Ptr(data.Content),
-		CommitMessage: gitlab.Ptr(msg),
-		LastCommitID:  gitlab.Ptr(file.LastCommitID),
-	}
-
-	_, _, err = c.RepositoryFiles.UpdateFile(
-		c.projectPath(),
-		data.Path,
-		opts,
-		gitlab.WithContext(ctx),
-	)
-	return err
+	})
 }
 
 func (c *Client) Delete(ctx context.Context, path, branch string) error {
-	file, err := c.get(ctx, path, branch)
-	if err != nil {
+	return retryOnConflict(ctx, func() error {
+		file, err := c.get(ctx, path, branch)
+		if err != nil {
+			return err
+		}
+		if file == nil {
+			return fmt.Errorf("file %q does not exist on branch %q", path, branch)
+		}
+
+		msg := fmt.Sprintf("terraform: Delete %q from branch %q", path, branch)
+		opts := &gitlab.DeleteFileOptions{
+			Branch:        gitlab.Ptr(branch),
+			CommitMessage: gitlab.Ptr(msg),
+			LastCommitID:  gitlab.Ptr(file.LastCommitID),
+		}
+
+		_, err = c.RepositoryFiles.DeleteFile(
+			c.projectPath(),
+			path,
+			opts,
+			gitlab.WithContext(ctx),
+		)
 		return err
-	}
-	if file == nil {
-		return fmt.Errorf("file %q does not exist on branch %q", path, branch)
-	}
-
-	msg := fmt.Sprintf("terraform: Delete %q from branch %q", path, branch)
-	opts := &gitlab.DeleteFileOptions{
-		Branch:        gitlab.Ptr(branch),
-		CommitMessage: gitlab.Ptr(msg),
-		LastCommitID:  gitlab.Ptr(file.LastCommitID),
-	}
-
-	_, err = c.RepositoryFiles.DeleteFile(
-		c.projectPath(),
-		path,
-		opts,
-		gitlab.WithContext(ctx),
-	)
-	return err
+	})
 }
 
 func (c *Client) Owner() string {
