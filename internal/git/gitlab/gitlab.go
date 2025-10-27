@@ -69,7 +69,7 @@ func retryOnConflict(ctx context.Context, operation func() error) error {
 				return struct{}{}, err
 			}
 		}
-		
+
 		return struct{}{}, backoff.Permanent(err)
 	}
 

@@ -91,7 +91,7 @@ func TestValidateYAML(t *testing.T) {
 			if tt.expectError {
 				require.Error(t, err)
 				assert.Contains(t, err.Error(), tt.errorMsg)
-				
+
 				validationErr, ok := err.(*ValidationError)
 				require.True(t, ok, "error should be a ValidationError")
 				assert.Equal(t, "yaml", validationErr.Type)
@@ -201,7 +201,7 @@ func TestValidateJSON(t *testing.T) {
 			if tt.expectError {
 				require.Error(t, err)
 				assert.Contains(t, err.Error(), tt.errorMsg)
-				
+
 				validationErr, ok := err.(*ValidationError)
 				require.True(t, ok, "error should be a ValidationError")
 				assert.Equal(t, "json", validationErr.Type)
@@ -243,4 +243,3 @@ func TestValidationError(t *testing.T) {
 		})
 	}
 }
-

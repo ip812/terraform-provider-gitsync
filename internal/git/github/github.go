@@ -58,7 +58,7 @@ func retryOnConflict(ctx context.Context, operation func() error) error {
 		if ghErr, ok := err.(*github.ErrorResponse); ok && ghErr.Response.StatusCode == 409 {
 			return struct{}{}, err
 		}
-		
+
 		// Not a conflict error, don't retry
 		return struct{}{}, backoff.Permanent(err)
 	}
