@@ -21,4 +21,11 @@ test:
 testacc:
 	TF_ACC=1 go test -v -cover -timeout 120m ./...
 
+hooks:
+	mkdir -p .git/hooks
+	echo '#!/bin/sh' > .git/hooks/pre-commit
+	echo 'make generate' >> .git/hooks/pre-commit
+	echo 'make fmt' >> .git/hooks/pre-commit
+	chmod +x .git/hooks/pre-commit
+
 .PHONY: fmt lint test testacc build install generate

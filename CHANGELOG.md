@@ -1,3 +1,16 @@
+## 1.2.0 (Oct 27, 2025)
+
+ENHANCEMENTS:
+
+* resource/gitsync_values_yaml: Add content validation to ensure YAML format is correct.
+* resource/gitsync_values_json: Add content validation to ensure JSON format is correct.
+
+BUG FIXES:
+
+* provider: Add exponential backoff retry mechanism when resource create/update fails(fixed race condition).
+* ci: Remove unnecessary workflows.
+
+
 ## 1.1.0 (Oct 7, 2025)
 
 ENHANCEMENTS:
