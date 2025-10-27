@@ -1,0 +1,11 @@
+{
+  "app": {
+    "name": "myapp",
+    "replicas": 3,
+    "config": {
+      "debug": true,
+      "ports": [8080, 8081]
+    }
+  }
+}
+

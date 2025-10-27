@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 
 	"terraform-provider-gitsync/internal/git"
+	"terraform-provider-gitsync/internal/validators"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -100,6 +101,15 @@ func (r *ValuesYamlResource) Create(ctx context.Context, req resource.CreateRequ
 		return
 	}
 
+	// Validate YAML content
+	if err := validators.ValidateYAML(data.Content.ValueString()); err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid YAML content",
+			fmt.Sprintf("The content is not valid YAML: %v", err),
+		)
+		return
+	}
+
 	err := r.client.Create(ctx, git.ValuesModel{
 		Path:    data.Path.ValueString(),
 		Branch:  data.Branch.ValueString(),
@@ -162,6 +172,15 @@ func (r *ValuesYamlResource) Update(ctx context.Context, req resource.UpdateRequ
 		resp.Diagnostics.AddError(
 			"Invalid file extension",
 			fmt.Sprintf("The file extension %q is not valid, must be .yaml or .yaml", ext),
+		)
+		return
+	}
+
+	// Validate YAML content
+	if err := validators.ValidateYAML(data.Content.ValueString()); err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid YAML content",
+			fmt.Sprintf("The content is not valid YAML: %v", err),
 		)
 		return
 	}

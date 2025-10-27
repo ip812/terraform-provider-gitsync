@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 
 	"terraform-provider-gitsync/internal/git"
+	"terraform-provider-gitsync/internal/validators"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -100,6 +101,15 @@ func (r *ValuesJsonResource) Create(ctx context.Context, req resource.CreateRequ
 		return
 	}
 
+	// Validate JSON content
+	if err := validators.ValidateJSON(data.Content.ValueString()); err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid JSON content",
+			fmt.Sprintf("The content is not valid JSON: %v", err),
+		)
+		return
+	}
+
 	err := r.client.Create(ctx, git.ValuesModel{
 		Path:    data.Path.ValueString(),
 		Branch:  data.Branch.ValueString(),
@@ -162,6 +172,15 @@ func (r *ValuesJsonResource) Update(ctx context.Context, req resource.UpdateRequ
 		resp.Diagnostics.AddError(
 			"Invalid file extension",
 			fmt.Sprintf("The file extension %q is not valid, must be .json or .jsonc", ext),
+		)
+		return
+	}
+
+	// Validate JSON content
+	if err := validators.ValidateJSON(data.Content.ValueString()); err != nil {
+		resp.Diagnostics.AddError(
+			"Invalid JSON content",
+			fmt.Sprintf("The content is not valid JSON: %v", err),
 		)
 		return
 	}
