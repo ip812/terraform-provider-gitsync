@@ -101,7 +101,6 @@ func (r *ValuesYamlResource) Create(ctx context.Context, req resource.CreateRequ
 		return
 	}
 
-	// Validate YAML content
 	if err := validators.ValidateYAML(data.Content.ValueString()); err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid YAML content",
@@ -176,7 +175,6 @@ func (r *ValuesYamlResource) Update(ctx context.Context, req resource.UpdateRequ
 		return
 	}
 
-	// Validate YAML content
 	if err := validators.ValidateYAML(data.Content.ValueString()); err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid YAML content",

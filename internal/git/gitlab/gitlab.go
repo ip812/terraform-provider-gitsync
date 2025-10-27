@@ -63,7 +63,6 @@ func retryOnConflict(ctx context.Context, operation func() error) error {
 			return struct{}{}, nil
 		}
 
-		// Check if it's a conflict error (GitLab returns 400 or 409 for commit conflicts)
 		if glErr, ok := err.(*gitlab.ErrorResponse); ok {
 			statusCode := glErr.Response.StatusCode
 			if statusCode == http.StatusConflict || statusCode == http.StatusBadRequest {
@@ -71,7 +70,6 @@ func retryOnConflict(ctx context.Context, operation func() error) error {
 			}
 		}
 		
-		// Not a conflict error, don't retry
 		return struct{}{}, backoff.Permanent(err)
 	}
 

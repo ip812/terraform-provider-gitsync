@@ -12,10 +12,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// loadFixture reads a fixture file from the project root fixtures/formats directory
 func loadFixture(t *testing.T, filename string) string {
 	t.Helper()
-	// Path is relative to the project root
 	path := filepath.Join("..", "..", "fixtures", "formats", filename)
 	content, err := os.ReadFile(path)
 	require.NoError(t, err, "failed to load fixture file: %s", filename)
@@ -94,7 +92,6 @@ func TestValidateYAML(t *testing.T) {
 				require.Error(t, err)
 				assert.Contains(t, err.Error(), tt.errorMsg)
 				
-				// Check that it's a ValidationError
 				validationErr, ok := err.(*ValidationError)
 				require.True(t, ok, "error should be a ValidationError")
 				assert.Equal(t, "yaml", validationErr.Type)
@@ -205,7 +202,6 @@ func TestValidateJSON(t *testing.T) {
 				require.Error(t, err)
 				assert.Contains(t, err.Error(), tt.errorMsg)
 				
-				// Check that it's a ValidationError
 				validationErr, ok := err.(*ValidationError)
 				require.True(t, ok, "error should be a ValidationError")
 				assert.Equal(t, "json", validationErr.Type)

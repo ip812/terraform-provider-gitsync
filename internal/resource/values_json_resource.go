@@ -101,7 +101,6 @@ func (r *ValuesJsonResource) Create(ctx context.Context, req resource.CreateRequ
 		return
 	}
 
-	// Validate JSON content
 	if err := validators.ValidateJSON(data.Content.ValueString()); err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid JSON content",
@@ -176,7 +175,6 @@ func (r *ValuesJsonResource) Update(ctx context.Context, req resource.UpdateRequ
 		return
 	}
 
-	// Validate JSON content
 	if err := validators.ValidateJSON(data.Content.ValueString()); err != nil {
 		resp.Diagnostics.AddError(
 			"Invalid JSON content",
