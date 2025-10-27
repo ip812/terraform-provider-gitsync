@@ -30,5 +30,7 @@ hooks:
 	@echo 'git add -u' >> .git/hooks/pre-commit
 	@chmod +x .git/hooks/pre-commit
 
+vulncheck:
+	@govulncheck -show verbose ./...
 
 .PHONY: fmt lint test testacc build install generate
