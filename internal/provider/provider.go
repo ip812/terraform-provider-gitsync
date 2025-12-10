@@ -53,11 +53,11 @@ func (p *gitSyncProvider) Schema(ctx context.Context, req provider.SchemaRequest
 	resp.Schema = schema.Schema{
 		Attributes: map[string]schema.Attribute{
 			"url": schema.StringAttribute{
-				Optional:            true,
+				Required:			 true,
 				MarkdownDescription: "The URL of your Git repository. Currently only GitHub and GitLab are supported. If the url is from github.com, the GitHub API will be used; otherwise, the GitLab API will be used. Notice that self-hosted GitLab instances with custom domains are also supported and that is the reason why there is no hard rule host to containt gitlab.com in order to use the GitLab API.",
 			},
 			"token": schema.StringAttribute{
-				Optional:            true,
+				Optional:			 true,
 				Sensitive:           true,
 				MarkdownDescription: "The personal access token used to authenticate with the Git provider API. The token must have sufficient permissions to create, update, and delete files in the target repository.",
 			},
@@ -66,24 +66,19 @@ func (p *gitSyncProvider) Schema(ctx context.Context, req provider.SchemaRequest
 }
 
 func (p *gitSyncProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
-	url := os.Getenv("GITSYNC_URL")
-	token := os.Getenv("GITSYNC_TOKEN")
-
 	var data gitSyncProviderModel
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
 
-	if data.URL.ValueString() != "" {
-		url = data.URL.ValueString()
+	url := data.URL.ValueString()
+	token := data.Token.ValueString()
+	if data.Token.IsNull() || data.Token.IsUnknown() || token == "" {
+		token = os.Getenv("GITSYNC_TOKEN")
 	}
-
-	if data.Token.ValueString() != "" {
-		token = data.Token.ValueString()
-	}
+	resp.Diagnostics.AddWarning(fmt.Sprintf("URL: %s", url), fmt.Sprintf("Token: %s", token))
 
 	if url == "" {
 		resp.Diagnostics.AddError(getMissingAttributeError("url"))
 	}
-
 	if token == "" {
 		resp.Diagnostics.AddError(getMissingAttributeError("token"))
 	}
