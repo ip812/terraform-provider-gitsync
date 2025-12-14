@@ -1,3 +1,14 @@
+## 1.3.0 (Dev 15, 2025)
+
+ENHANCEMENTS:
+
+* Add option to import all resources.
+
+BUG FIXES:
+
+* ci: Fix the wrong test commands.
+* chore: Update dependencies to latest versions.
+
 ## 1.2.0 (Oct 27, 2025)
 
 ENHANCEMENTS:
