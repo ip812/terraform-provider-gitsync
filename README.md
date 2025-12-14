@@ -22,7 +22,7 @@ With `terraform-provider-gitsync`, the values live in Git instead, which offers 
 ## Important note about secrets
 
 Do **not** store sensitive values in `values.yaml`, as they are stored in plain text in Git.  
-If you need to manage secrets, use a secure tool such as **SealedSecrets**, **HashiCorp Vault**, or a similar solution.
+If you need to manage secrets, use a secure tool such as **SealedSecrets**, **HashiCorp Vault**, **External Secrets Operator** or a similar solution.
 
 ## Contributing
 
