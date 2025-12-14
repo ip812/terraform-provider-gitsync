@@ -74,7 +74,6 @@ func (p *gitSyncProvider) Configure(ctx context.Context, req provider.ConfigureR
 	if data.Token.IsNull() || data.Token.IsUnknown() || token == "" {
 		token = os.Getenv("GITSYNC_TOKEN")
 	}
-	resp.Diagnostics.AddWarning(fmt.Sprintf("URL: %s", url), fmt.Sprintf("Token: %s", token))
 
 	if url == "" {
 		resp.Diagnostics.AddError(getMissingAttributeError("url"))

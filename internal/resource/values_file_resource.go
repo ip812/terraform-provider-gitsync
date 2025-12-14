@@ -6,6 +6,7 @@ package resource
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"terraform-provider-gitsync/internal/git"
 
@@ -192,4 +193,48 @@ func (r *ValuesFileResource) Delete(ctx context.Context, req resource.DeleteRequ
 }
 
 func (r *ValuesFileResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	importID := req.ID
+	var branch, path string
+
+	parts := strings.SplitN(importID, ":", 2)
+	if len(parts) == 2 {
+		branch = parts[0]
+		path = parts[1]
+	} else {
+		branch = defaultBranch
+		path = importID
+	}
+
+	if branch == "" {
+		branch = defaultBranch
+	}
+
+	if path == "" {
+		resp.Diagnostics.AddError(
+			"Invalid Import ID",
+			"Import ID must be in format 'branch:path' or 'path'",
+		)
+		return
+	}
+
+	content, err := r.client.GetContent(ctx, path, branch)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Failed to read file during import",
+			fmt.Sprintf(
+				"An error occurred while reading %q in branch %q: %v",
+				path,
+				branch,
+				err,
+			),
+		)
+		return
+	}
+
+	resp.Diagnostics.Append(resp.State.Set(ctx, &ValuesFileResourceModel{
+		ID:      types.StringValue(r.client.GetID(branch, path)),
+		Path:    types.StringValue(path),
+		Branch:  types.StringValue(branch),
+		Content: types.StringValue(content),
+	})...)
 }

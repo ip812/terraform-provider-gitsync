@@ -41,3 +41,18 @@ resource "gitsync_values_file" "example_file" {
 Name is bar and replicas are 2
 EOT
 }
+
+# import {
+#   to = gitsync_values_yaml.example_yaml
+#   id = "main:values/values.yaml"
+# }
+# 
+# import {
+#   to = gitsync_values_json.example_json
+#   id = "main:values/values.json"
+# }
+# 
+# import {
+#   to = gitsync_values_file.example_file
+#   id = "main:values/values.md"
+# }
