@@ -64,6 +64,7 @@ jobs:
       - run: go test -v -cover ./internal/validators/...
         timeout-minutes: 10
 
+  # TODO: Add acceptance tests
   acceptance-tests:
     name: Terraform Provider Acceptance Tests
     needs: unit-tests
