@@ -1,6 +1,6 @@
 module terraform-provider-gitsync
 
-go 1.24.11
+go 1.25.0
 
 require (
 	github.com/cenkalti/backoff/v5 v5.0.3
@@ -8,7 +8,7 @@ require (
 	github.com/hashicorp/terraform-plugin-framework v1.17.0
 	github.com/stretchr/testify v1.11.1
 	gitlab.com/gitlab-org/api/client-go v1.14.0
-	golang.org/x/oauth2 v0.34.0
+	golang.org/x/oauth2 v0.36.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
